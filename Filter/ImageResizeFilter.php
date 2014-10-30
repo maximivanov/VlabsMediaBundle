@@ -15,6 +15,7 @@ use Vlabs\MediaBundle\Entity\BaseFileInterface;
 
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Box;
+use Imagine\Image\Point;
 use Imagine\Gd\Imagine;
 
 /**
@@ -85,9 +86,24 @@ class ImageResizeFilter extends AbstractFilter
                 throw new \InvalidArgumentException('The "resize" image filter needs at least a "height" or a "width" option to be specified.');
             }
 
-            $image
-                ->thumbnail($box, ImageInterface::THUMBNAIL_OUTBOUND)
-                ->save($this->newPath);
+            $thumbnail = $image->thumbnail($box, ImageInterface::THUMBNAIL_OUTBOUND);
+
+            if (isset($options['watermark']['path'])) {
+                $watermark = $imagine->open($options['watermark']['path']);
+
+                $wBox = $box->widen((int)($box->getWidth() / 10));
+                $watermark = $watermark->thumbnail($wBox, ImageInterface::THUMBNAIL_INSET);
+                $padding = (int)($box->getWidth() / 100 * 2);
+
+                $bottomRight = new Point(
+                    $box->getWidth() - $wBox->getWidth() - $padding,
+                    $box->getHeight() - $wBox->getHeight() - $padding
+                );
+
+                $thumbnail->paste($watermark, $bottomRight);
+            }
+
+            $thumbnail->save($this->newPath);
         }
     }
 }

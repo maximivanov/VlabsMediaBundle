@@ -95,9 +95,10 @@ class ImageResizeFilter extends AbstractFilter
                 $watermark = $watermark->thumbnail($wBox, ImageInterface::THUMBNAIL_INSET);
                 $padding = (int)($box->getWidth() / 100 * 2);
 
+
                 $bottomRight = new Point(
-                    $box->getWidth() - $wBox->getWidth() - $padding,
-                    $box->getHeight() - $wBox->getHeight() - $padding
+                    $box->getWidth() - $watermark->getSize()->getWidth() - $padding,
+                    $box->getHeight() - $watermark->getSize()->getHeight() - $padding
                 );
 
                 $thumbnail->paste($watermark, $bottomRight);
